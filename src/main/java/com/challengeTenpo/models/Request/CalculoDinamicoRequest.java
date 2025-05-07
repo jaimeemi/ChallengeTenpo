@@ -1,19 +1,23 @@
 package com.challengeTenpo.models.Request;
 
 import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class CalculoDinamicoRequest {
 
-    @NonNull
-    @DecimalMin("0.1")
-    private double monto;
+    @NotNull(message = "El monto no puede ser nulo")
+    @DecimalMin(value = "0.1", message = "El valor debe ser mayor a 0.1")
+    private Double numero1;
 
-    @NonNull
-    @DecimalMin("0.1")
-    private double porcentaje;
+    @NotNull(message = "El monto no puede ser nulo")
+    @DecimalMin(value = "0.1", message = "El valor debe ser mayor a 0.1")
+    private Double numero2;
 }

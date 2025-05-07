@@ -1,6 +1,9 @@
 package com.challengeTenpo.models.DTO;
 
 
+import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -9,23 +12,33 @@ import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class HistorialCalculosDTO {
 
     private Long id;
     private LocalDateTime fecha;
+
+    @NotBlank(message = "El endpoint es obligatorio")
     private String endpoint;
-    private String parámetros;
+
+    @NotBlank(message = "Los parámetros son obligatorios")
+    private String parametros;
+
+    @NotBlank(message = "La respuesta es obligatoria")
     private String respuesta;
-    private boolean error;
+
+    private Boolean error;
     private String mensajeError;
 
-    public HistorialCalculosDTO(String endpoint, String parámetros, String respuesta, String mensajeError) {
-        this.fecha = LocalDateTime.now();
-        this.error = mensajeError != "";
-
-        this.endpoint = endpoint;
-        this.parámetros = parámetros;
-        this.respuesta = respuesta;
-        this.mensajeError = mensajeError;
+    public static HistorialCalculosDTO of(String endpoint, String parametros, String respuesta, String mensajeError) {
+        return HistorialCalculosDTO.builder()
+                .fecha(LocalDateTime.now())
+                .endpoint(endpoint)
+                .parametros(parametros)
+                .respuesta(respuesta)
+                .mensajeError(mensajeError)
+                .error(mensajeError != null && !mensajeError.isEmpty())
+                .build();
     }
 }

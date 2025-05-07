@@ -4,6 +4,7 @@ package com.challengeTenpo.models.entityes;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -15,31 +16,38 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties
-public class CalculosEntity {
+@Builder
+public class HistorialCalculosEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "fecha", columnDefinition = "TIMESTAMP")
     private LocalDateTime fecha;
 
-    @Column(name = "endpoint", nullable = false)
+    @Column(name = "endpoint", nullable = false, length = 255)
     private String endpoint;
 
-    @Column(name = "parametros", nullable = false)
-    private String parámetros;
+    @Column(name = "parametros", nullable = false, length = 255)
+    private String parametros;
 
-    @Column(name = "respuesta", nullable = false)
+    @Column(name = "respuesta", nullable = false, columnDefinition = "TEXT")
     private String respuesta;
 
     @Column(name = "error", nullable = false)
-    private boolean error;
+    private Boolean error = false;
 
-    @Column(name = "mensaje_error", nullable = false)
+    @Column(name = "mensaje_error", length = 512)
     private String mensajeError;
 
     @PrePersist
     protected void onCreate() {
-        this.fecha = LocalDateTime.now();
+        if (this.fecha == null) {
+            this.fecha = LocalDateTime.now();
+        }
+        if (this.error == null) {
+        this.error = false;
+        }
     }
 }
