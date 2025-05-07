@@ -6,7 +6,7 @@ import com.challengeTenpo.exceptions.FeignApiException;
 import com.challengeTenpo.models.DTO.HistorialCalculosDTO;
 import com.challengeTenpo.models.Request.CalculoDinamicoRequest;
 import com.challengeTenpo.models.Response.CalculoDinamicoResponse;
-import com.challengeTenpo.models.entityes.HistorialCalculosEntity;
+import com.challengeTenpo.models.entities.HistorialCalculosEntity;
 import com.challengeTenpo.repository.ICalculosRepository;
 import com.challengeTenpo.service.ICalculosService;
 import com.challengeTenpo.service.FeignApi.IPorcentajeService;

@@ -1,4 +1,4 @@
-package com.challengeTenpo.models.entityes;
+package com.challengeTenpo.models.entities;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;

@@ -1,6 +1,6 @@
 package com.challengeTenpo.repository;
 
-import com.challengeTenpo.models.entityes.HistorialCalculosEntity;
+import com.challengeTenpo.models.entities.HistorialCalculosEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

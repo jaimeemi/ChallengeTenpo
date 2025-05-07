@@ -1,7 +1,7 @@
 package com.challengeTenpo.models.DTO;
 
 import com.challengeTenpo.models.Request.CalculoDinamicoRequest;
-import com.challengeTenpo.models.entityes.HistorialCalculosEntity;
+import com.challengeTenpo.models.entities.HistorialCalculosEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
