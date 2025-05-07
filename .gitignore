@@ -32,6 +32,6 @@ build/
 ### VS Code ###
 .vscode/
 
-V1_Init_Schema_H2.sql
-DBConfig.java
-H2Properties.yml
+src/main/resources/DB/V1_Init_Schema_H2.sql
+src/main/resources/H2Properties.yml
+src/main/java/com/challengeTenpo/configs/DBConfig.java
