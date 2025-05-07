@@ -1,7 +1,7 @@
 package com.challengeTenpo.models.DTO;
 
-
-import jakarta.validation.constraints.NotBlank;
+import com.challengeTenpo.models.Request.CalculoDinamicoRequest;
+import com.challengeTenpo.models.entityes.HistorialCalculosEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,36 +9,58 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class HistorialCalculosDTO {
 
-    private Long id;
-    private LocalDateTime fecha;
-
-    @NotBlank(message = "El endpoint es obligatorio")
+    private Double numero1;
+    private Double numero2;
+    private Double resultado;
+    @Builder.Default
+    private LocalDateTime fecha = LocalDateTime.now();
     private String endpoint;
-
-    @NotBlank(message = "Los parámetros son obligatorios")
     private String parametros;
-
-    @NotBlank(message = "La respuesta es obligatoria")
     private String respuesta;
-
     private Boolean error;
     private String mensajeError;
 
-    public static HistorialCalculosDTO of(String endpoint, String parametros, String respuesta, String mensajeError) {
-        return HistorialCalculosDTO.builder()
-                .fecha(LocalDateTime.now())
-                .endpoint(endpoint)
-                .parametros(parametros)
-                .respuesta(respuesta)
-                .mensajeError(mensajeError)
-                .error(mensajeError != null && !mensajeError.isEmpty())
+    public HistorialCalculosDTO (CalculoDinamicoRequest request,
+                                 double resultado,
+                                 String endpoint,
+                                 String error) {
+        this.numero1 = request.getNumero1();
+        this.numero2 = request.getNumero2();
+        this.resultado = resultado;
+        this.fecha = LocalDateTime.now();
+        this.endpoint = endpoint;
+        this.parametros = createParamsString(request);
+        this.respuesta = createResponseString(resultado);
+        this.error = error != null && !error.isEmpty();
+        this.mensajeError = "";
+    }
+
+    private static String createParamsString(CalculoDinamicoRequest request) {
+        return String.format("numero1=%.2f&numero2=%.2f", request.getNumero1(), request.getNumero2());
+    }
+
+    private static String createResponseString(double resultado) {
+        return String.format("{\"resultado\": %.2f}", resultado);
+    }
+
+    //Parseo o Mapeando de DTO a Entity
+    public static HistorialCalculosEntity toEntity(HistorialCalculosDTO dto) {
+        return HistorialCalculosEntity.builder()
+                .fecha(dto.getFecha() != null ? dto.getFecha() : LocalDateTime.now())
+                .endpoint(dto.getEndpoint())
+                .parametros(dto.getParametros() != null ? dto.getParametros() :
+                        String.format("numero1=%.2f&numero2=%.2f", dto.getNumero1(), dto.getNumero2()))
+                .respuesta(dto.getRespuesta() != null ? dto.getRespuesta() :
+                        String.format("{\"resultado\": %.2f}", dto.getResultado()))
+                .error(dto.getError() != null ? dto.getError() : false)
+                .mensajeError(dto.getMensajeError())
                 .build();
     }
+
 }

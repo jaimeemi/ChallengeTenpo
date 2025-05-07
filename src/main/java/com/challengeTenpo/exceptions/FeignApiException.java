@@ -4,7 +4,7 @@ public class FeignApiException extends RuntimeException{
 
     private final long serialVersionUID = 3L;
 
-    private final String mensaje = "Error en la comunicacion con la api externa";
+    private final String mensaje = "Servicio externo no disponible";
 
     public FeignApiException() {
     }

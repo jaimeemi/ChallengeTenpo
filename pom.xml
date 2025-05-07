@@ -75,6 +75,12 @@
 			<version>3.1.5</version> <!-- Ajusta la versión según tu Spring Boot -->
 		</dependency>
 
+		<!-- Data Redis -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-redis</artifactId>
+		</dependency>
+
 		<!-- JUnit, Mockito -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

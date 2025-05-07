@@ -6,12 +6,18 @@ import com.challengeTenpo.exceptions.FeignApiException;
 import com.challengeTenpo.models.DTO.HistorialCalculosDTO;
 import com.challengeTenpo.models.Request.CalculoDinamicoRequest;
 import com.challengeTenpo.models.Response.CalculoDinamicoResponse;
+import com.challengeTenpo.models.entityes.HistorialCalculosEntity;
 import com.challengeTenpo.repository.ICalculosRepository;
 import com.challengeTenpo.service.ICalculosService;
 import com.challengeTenpo.service.FeignApi.IPorcentajeService;
+import com.challengeTenpo.service.Kafka.IKafkaService;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -19,42 +25,53 @@ import org.springframework.stereotype.Service;
 public class CalculosServiceImp implements ICalculosService {
 
 
-    IPorcentajeService porcentajeService;
+    private final IPorcentajeService porcentajeService;
+    private final ICalculosRepository calculosRepository;
+    private final RedisTemplate<String, Double> redisTemplate;
+    private final IKafkaService kafkaService;
 
-    ICalculosRepository calculosRepository;
+    private static final String PORCENTAJE_CACHE = "Percentage";
+    private static final String CACHE_NOMBRE = "percentageCache";
 
     @Autowired
-    public CalculosServiceImp(IPorcentajeService porcentajeService, ICalculosRepository calculosRepository) {
+    public CalculosServiceImp(IPorcentajeService porcentajeService,
+                              ICalculosRepository calculosRepository,
+                              RedisTemplate<String, Double> redisTemplate,
+                              IKafkaService kafkaService) {
         this.porcentajeService = porcentajeService;
         this.calculosRepository = calculosRepository;
+        this.redisTemplate = redisTemplate;
+        this.kafkaService = kafkaService;
     }
 
     @Override
     @Transactional
-    public CalculoDinamicoResponse CalculoDinamico(CalculoDinamicoRequest request)
+    @Cacheable(value = CACHE_NOMBRE, unless = "#result == null")
+    public CalculoDinamicoResponse CalculoDinamico(CalculoDinamicoRequest request, String url)
             throws CalculoDinamicoException,
                    FeignApiException,
                    BaseDatosException {
 
         CalculoDinamicoResponse response = null;
         double numeroAleatorioMiddelware;
-        log.info("Servicio de Calculo Dinamico");
+        double resultado;
+        log.info(" Iniciando Servicio de Calculo Dinamico");
         try{
 
             numeroAleatorioMiddelware = llamadaMiddelware();
 
-            double resultado = realizarCalculo(request, numeroAleatorioMiddelware);
+            resultado = realizarCalculo(request, numeroAleatorioMiddelware);
             response.setResultado( resultado );
 
-            graberCalculo(request, resultado, null );
+            persistirOperacion(request, resultado, url, null );
 
         } catch (CalculoDinamicoException e) {
             log.error("Error en el calculo : "+ e.getMessage());
-            graberCalculo( request, 0, e.getMessage() );
+            persistirOperacion( request, 0,url, e.getMessage() );
             throw new CalculoDinamicoException();
         } catch (FeignApiException e) {
             log.error("Error consulta Api MiddelWare : "+ e.getMessage());
-            graberCalculo( request, 0, e.getMessage() );
+            persistirOperacion( request, 0,url, e.getMessage() );
             throw new FeignApiException();
         } catch (BaseDatosException e) {
             log.error("Error Proceso a Base de Datos : "+ e.getMessage());
@@ -68,30 +85,41 @@ public class CalculosServiceImp implements ICalculosService {
         if(numeroAleatorio == 0) {
             throw new CalculoDinamicoException("El porcentaje no puede ser cero");
         }
-        return request.getMonto() * (request.getPorcentaje() / numeroAleatorio );
+        return request.getNumero1() + request.getNumero2() *  numeroAleatorio ;
     }
 
     private double llamadaMiddelware(){
         double porcentaje;
         try{
-            log.info("Llamada a APi MiddelWare para obtene Porcentaje");
+            log.info("Llamada a APi MiddelWare para obtener Porcentaje");
             porcentaje = porcentajeService.obtenerPorcentaje();
+
+            log.info("Guardando Ultimo Porcentaje");
+            redisTemplate.opsForValue().set(PORCENTAJE_CACHE, porcentaje);
+
         } catch (FeignApiException e) {
-            throw new FeignApiException();
+            throw new FeignApiException(e.getMessage() + "y no hay porcentaje en caché");
         }
         return porcentaje;
     }
 
-    private void graberCalculo(CalculoDinamicoRequest request, double resultado, String mensajeError)
+    private void persistirOperacion(CalculoDinamicoRequest request, double resultado, String url, String mensajeError)
             throws BaseDatosException {
-        HistorialCalculosDTO persistencia = new HistorialCalculosDTO();
+        HistorialCalculosDTO persistencia = new HistorialCalculosDTO(request, resultado,url , mensajeError);
 
-        try{
-            log.info("Persistiendo Calculo en Base de Datos");
-            calculosRepository.save(response);
-        } catch (BaseDatosException e) {
-            throw new BaseDatosException();
-        }
+
+        HistorialCalculosEntity persistenciaEntity = HistorialCalculosDTO.toEntity(persistencia);
+        log.info("Persistiendo Calculo en Base de Datos");
+        calculosRepository.save( persistenciaEntity );
+
+        kafkaService.send(persistencia);
+
+    }
+
+    @CacheEvict(value = CACHE_NOMBRE, allEntries = true)
+    @Scheduled(fixedRate = 30 * 60 * 1000)
+    public void limpiarCachePorcentaje() {
+        log.info("Limpiando caché de porcentajes");
     }
 
 }

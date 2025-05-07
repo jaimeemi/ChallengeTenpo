@@ -10,6 +10,6 @@ import org.springframework.stereotype.Service;
 @Service
 public interface ICalculosService {
 
-    CalculoDinamicoResponse CalculoDinamico (CalculoDinamicoRequest request) throws CalculoDinamicoException, FeignApiException, BaseDatosException;
+    CalculoDinamicoResponse CalculoDinamico (CalculoDinamicoRequest request, String url) throws CalculoDinamicoException, FeignApiException, BaseDatosException;
 
 }
