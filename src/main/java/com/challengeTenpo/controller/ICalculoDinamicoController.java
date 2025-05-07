@@ -1,7 +1,7 @@
 package com.challengeTenpo.controller;
 
 import com.challengeTenpo.models.Response.CalculoDinamicoResponse;
-import com.challengeTenpo.models.Response.HistorialCalculosResposne;
+import com.challengeTenpo.models.Response.HistorialCalculosResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -23,8 +23,8 @@ public interface ICalculoDinamicoController {
     @ApiResponse(responseCode = "404", description = "Error durante el calculo")
     @GetMapping("/calcular")
     ResponseEntity<CalculoDinamicoResponse> calcular(
-            @Valid @RequestHeader double monto,
-            @Valid @RequestHeader double porcentaje);
+            @Valid @RequestHeader double numero1,
+            @Valid @RequestHeader double numero2);
 
     /*
     * Aqui dejo otro modelo de implementacion Usando @PathVariable
@@ -40,6 +40,6 @@ public interface ICalculoDinamicoController {
     @ApiResponse(responseCode = "200", description = "Historicos")
     @ApiResponse(responseCode = "404", description = "No se encontro el historial")
     @GetMapping("/historial")
-    ResponseEntity<HistorialCalculosResposne> historial();
+    ResponseEntity<HistorialCalculosResponse> historial();
 
 }

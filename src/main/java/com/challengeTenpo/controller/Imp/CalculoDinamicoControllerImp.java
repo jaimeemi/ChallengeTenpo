@@ -5,7 +5,7 @@ import com.challengeTenpo.exceptions.BaseDatosException;
 import com.challengeTenpo.exceptions.CalculoDinamicoException;
 import com.challengeTenpo.models.Request.CalculoDinamicoRequest;
 import com.challengeTenpo.models.Response.CalculoDinamicoResponse;
-import com.challengeTenpo.models.Response.HistorialCalculosResposne;
+import com.challengeTenpo.models.Response.HistorialCalculosResponse;
 import com.challengeTenpo.service.ICalculosService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,9 +26,9 @@ public class CalculoDinamicoControllerImp implements ICalculoDinamicoController 
 
 
     @Override
-    public ResponseEntity<CalculoDinamicoResponse> calcular(double monto, double porcentaje) {
+    public ResponseEntity<CalculoDinamicoResponse> calcular(double numero1, double numero2) {
         CalculoDinamicoResponse response = null;
-        CalculoDinamicoRequest request = crearCalculoDinamicoRequest(monto, porcentaje);
+        CalculoDinamicoRequest request = crearCalculoDinamicoRequest(numero1, numero2);
         try{
             log.info("Servicio de Calculo Dinamico");
             response = calculosService.CalculoDinamico(request);
@@ -39,16 +39,16 @@ public class CalculoDinamicoControllerImp implements ICalculoDinamicoController 
         return  new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    private CalculoDinamicoRequest crearCalculoDinamicoRequest(double monto, double porcentaje){
-        log.info("Creacion del Objeto Peticion con: Monto: {} Porcentaje: {}", monto, porcentaje);
+    private CalculoDinamicoRequest crearCalculoDinamicoRequest(double numero1, double numero2){
+        log.info("Creacion del Objeto Peticion con: Monto: "+numero1+" Porcentaje: {}", numero2);
         CalculoDinamicoRequest request = new CalculoDinamicoRequest();
-        request.setMonto(monto);
-        request.setPorcentaje(porcentaje);
+        request.setNumero1(numero1);
+        request.setNumero2(numero2);
         return request;
     }
 
     @Override
-    public ResponseEntity<HistorialCalculosResposne> historial() {
+    public ResponseEntity<HistorialCalculosResponse> historial() {
         log.info("Servicio de Historial de Calculos");
         return null;
     }
