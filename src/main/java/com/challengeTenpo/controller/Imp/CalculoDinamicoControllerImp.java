@@ -1,6 +1,7 @@
 package com.challengeTenpo.controller.Imp;
 
 import com.challengeTenpo.controller.ICalculoDinamicoController;
+import com.challengeTenpo.exceptions.BaseDatosException;
 import com.challengeTenpo.exceptions.CalculoDinamicoException;
 import com.challengeTenpo.models.Request.CalculoDinamicoRequest;
 import com.challengeTenpo.models.Response.CalculoDinamicoResponse;
@@ -31,7 +32,7 @@ public class CalculoDinamicoControllerImp implements ICalculoDinamicoController 
         try{
             log.info("Servicio de Calculo Dinamico");
             response = calculosService.CalculoDinamico(request);
-        } catch (CalculoDinamicoException e) {
+        } catch (CalculoDinamicoException | BaseDatosException e) {
             log.error("Error en el calculo : "+ e.getMessage());
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
