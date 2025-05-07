@@ -3,6 +3,7 @@ package com.challengeTenpo.controller.Imp;
 import com.challengeTenpo.controller.ICalculoDinamicoController;
 import com.challengeTenpo.exceptions.BaseDatosException;
 import com.challengeTenpo.exceptions.CalculoDinamicoException;
+import com.challengeTenpo.exceptions.SinHistorialCalculosException;
 import com.challengeTenpo.models.Request.CalculoDinamicoRequest;
 import com.challengeTenpo.models.Response.CalculoDinamicoResponse;
 import com.challengeTenpo.models.Response.HistorialCalculosResponse;
@@ -13,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @Slf4j
@@ -51,8 +54,17 @@ public class CalculoDinamicoControllerImp implements ICalculoDinamicoController 
     }
 
     @Override
-    public ResponseEntity<HistorialCalculosResponse> historial() {
+    public ResponseEntity<List<HistorialCalculosResponse>> historial() {
         log.info("Servicio de Historial de Calculos");
-        return null;
+        List<HistorialCalculosResponse> response= calculosService.historial();
+        try{
+            log.info("Servicio para Historial de Calculo");
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (SinHistorialCalculosException e) {
+            log.error("Error en el calculo : "+ e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+
+
     }
 }

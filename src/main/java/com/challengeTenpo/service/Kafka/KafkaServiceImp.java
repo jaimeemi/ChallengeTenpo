@@ -1,6 +1,7 @@
 package com.challengeTenpo.service.Kafka;
 
 import com.challengeTenpo.models.DTO.HistorialCalculosDTO;
+import com.challengeTenpo.models.entities.HistorialCalculosEntity;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -11,25 +12,11 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class KafkaServiceImp implements IKafkaService{
 
-    private final KafkaTemplate<String, HistorialCalculosDTO> kafkaTemplate;
+    private final KafkaTemplate<String, HistorialCalculosEntity> kafkaTemplate;
 
-    public void send(HistorialCalculosDTO historial) {
-        HistorialCalculosDTO message = crearObjeto(historial);
-
+    public void send(HistorialCalculosEntity historial) {
         log.info("Enviando mensaje a Kafka");
-        kafkaTemplate.send("call-history-topic", message);
-    }
-
-    private HistorialCalculosDTO crearObjeto(HistorialCalculosDTO historial) {
-        log.info("Creando objeto mensaje");
-        return HistorialCalculosDTO.builder()
-                .fecha(historial.getFecha())
-                .endpoint(historial.getEndpoint())
-                .parametros(historial.getParametros())
-                .respuesta(historial.getRespuesta())
-                .mensajeError(historial.getMensajeError())
-                .error(historial.getMensajeError() != null && !historial.getMensajeError().isEmpty())
-                .build();
+        kafkaTemplate.send("call-history-topic", historial);
     }
 
 }

@@ -3,6 +3,7 @@ package com.challengeTenpo.service.Imp;
 import com.challengeTenpo.exceptions.BaseDatosException;
 import com.challengeTenpo.exceptions.CalculoDinamicoException;
 import com.challengeTenpo.exceptions.FeignApiException;
+import com.challengeTenpo.exceptions.SinHistorialCalculosException;
 import com.challengeTenpo.models.DTO.HistorialCalculosDTO;
 import com.challengeTenpo.models.Request.CalculoDinamicoRequest;
 import com.challengeTenpo.models.Response.CalculoDinamicoResponse;
@@ -119,10 +120,8 @@ public class CalculosServiceImp implements ICalculosService {
         */
 
         HistorialCalculosEntity persistenciaEntity = HistorialCalculosDTO.toEntity(persistencia);
-        log.info("Persistiendo Calculo en Base de Datos");
-        calculosRepository.save( persistenciaEntity );
-
-        kafkaService.send(persistencia);
+        log.info("Persistiendo Calculo en Base de Datos en forma asincronica con kafka");
+        kafkaService.send(persistenciaEntity);
 
     }
 
@@ -133,9 +132,10 @@ public class CalculosServiceImp implements ICalculosService {
         try{
             log.info("Buscando Historial de Calculo en Base de Datos");
             List<HistorialCalculosEntity> entities = calculosRepository.findAllByOrderByFechaDesc();
-            historial = mapper.entitiesToResponses(entities); // Con MapStruct
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+            historial = mapper.entitiesToResponses(entities);
+        } catch (SinHistorialCalculosException e) {
+            log.error("Error buscando Historial de Calculo en Base de Datos");
+            throw new SinHistorialCalculosException();
         }
         return historial;
     }

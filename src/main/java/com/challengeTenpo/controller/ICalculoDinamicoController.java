@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.util.List;
+
 @RequestMapping(value = "/api/calculo-dinamico", produces = "application/json")
 @SuppressWarnings("unused")
 @Validated
@@ -40,6 +42,6 @@ public interface ICalculoDinamicoController {
     @ApiResponse(responseCode = "200", description = "Historicos")
     @ApiResponse(responseCode = "404", description = "No se encontro el historial")
     @GetMapping("/historial")
-    ResponseEntity<HistorialCalculosResponse> historial();
+    ResponseEntity<List<HistorialCalculosResponse>> historial();
 
 }

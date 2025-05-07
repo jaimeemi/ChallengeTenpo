@@ -1,8 +1,8 @@
 package com.challengeTenpo.service.Kafka;
 
-import com.challengeTenpo.models.DTO.HistorialCalculosDTO;
+import com.challengeTenpo.models.entities.HistorialCalculosEntity;
 
 public interface IKafkaService {
 
-    void send(HistorialCalculosDTO historial);
+    void send(HistorialCalculosEntity historial);
 }
