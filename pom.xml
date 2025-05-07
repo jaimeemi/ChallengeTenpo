@@ -68,6 +68,13 @@
 			<version>2.3.0</version>
 		</dependency>
 
+		<!--	Feign Client	-->
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-openfeign</artifactId>
+			<version>3.1.5</version> <!-- Ajusta la versión según tu Spring Boot -->
+		</dependency>
+
 		<!-- JUnit, Mockito -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

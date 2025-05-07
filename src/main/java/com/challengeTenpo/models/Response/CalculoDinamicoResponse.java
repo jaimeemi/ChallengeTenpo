@@ -5,6 +5,6 @@ import lombok.Data;
 @Data
 public class CalculoDinamicoResponse {
 
-    private int num1;
-    private int num2;
+    private double resultado;
+
 }
