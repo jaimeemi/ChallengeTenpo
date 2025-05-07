@@ -6,8 +6,10 @@ import com.challengeTenpo.exceptions.FeignApiException;
 import com.challengeTenpo.models.DTO.HistorialCalculosDTO;
 import com.challengeTenpo.models.Request.CalculoDinamicoRequest;
 import com.challengeTenpo.models.Response.CalculoDinamicoResponse;
+import com.challengeTenpo.models.Response.HistorialCalculosResponse;
 import com.challengeTenpo.models.entities.HistorialCalculosEntity;
 import com.challengeTenpo.repository.ICalculosRepository;
+import com.challengeTenpo.repository.mappers.HistorialCalculosMapper;
 import com.challengeTenpo.service.ICalculosService;
 import com.challengeTenpo.service.FeignApi.IPorcentajeService;
 import com.challengeTenpo.service.Kafka.IKafkaService;
@@ -20,6 +22,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @Slf4j
 public class CalculosServiceImp implements ICalculosService {
@@ -29,6 +33,7 @@ public class CalculosServiceImp implements ICalculosService {
     private final ICalculosRepository calculosRepository;
     private final RedisTemplate<String, Double> redisTemplate;
     private final IKafkaService kafkaService;
+    private final HistorialCalculosMapper mapper;
 
     private static final String PORCENTAJE_CACHE = "Percentage";
     private static final String CACHE_NOMBRE = "percentageCache";
@@ -37,11 +42,13 @@ public class CalculosServiceImp implements ICalculosService {
     public CalculosServiceImp(IPorcentajeService porcentajeService,
                               ICalculosRepository calculosRepository,
                               RedisTemplate<String, Double> redisTemplate,
-                              IKafkaService kafkaService) {
+                              IKafkaService kafkaService,
+                              HistorialCalculosMapper mapper) {
         this.porcentajeService = porcentajeService;
         this.calculosRepository = calculosRepository;
         this.redisTemplate = redisTemplate;
         this.kafkaService = kafkaService;
+        this.mapper = mapper;
     }
 
     @Override
@@ -106,7 +113,10 @@ public class CalculosServiceImp implements ICalculosService {
     private void persistirOperacion(CalculoDinamicoRequest request, double resultado, String url, String mensajeError)
             throws BaseDatosException {
         HistorialCalculosDTO persistencia = new HistorialCalculosDTO(request, resultado,url , mensajeError);
-
+        /*
+        * Otra forma es usar Optional<HistorialCalculosDTO>
+        * Optional<HistorialCalculosDTO> persistencia = Optional.of(persistencia);
+        */
 
         HistorialCalculosEntity persistenciaEntity = HistorialCalculosDTO.toEntity(persistencia);
         log.info("Persistiendo Calculo en Base de Datos");
@@ -114,6 +124,20 @@ public class CalculosServiceImp implements ICalculosService {
 
         kafkaService.send(persistencia);
 
+    }
+
+    @Override
+    public List<HistorialCalculosResponse> historial() {
+        List<HistorialCalculosResponse> historial = null;
+
+        try{
+            log.info("Buscando Historial de Calculo en Base de Datos");
+            List<HistorialCalculosEntity> entities = calculosRepository.findAllByOrderByFechaDesc();
+            historial = mapper.entitiesToResponses(entities); // Con MapStruct
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return historial;
     }
 
     @CacheEvict(value = CACHE_NOMBRE, allEntries = true)

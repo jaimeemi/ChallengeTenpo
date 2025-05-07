@@ -15,20 +15,12 @@ import java.util.List;
 @Builder
 public class HistorialCalculosResponse {
 
-    @Schema(description = "Lista de cálculos históricos")
-    private List<HistorialItem> historial;
+    private Long id;
+    private LocalDateTime fecha;
+    private String endpoint;
+    private String parametros;
+    private String respuesta;
+    private boolean error;
+    private String mensajeError;
 
-    @Schema(description = "Total de registros")
-    private Long total;
-
-    @Data
-    @Builder
-    public static class HistorialItem {
-        private Long id;
-        private LocalDateTime fecha;
-        private String endpoint;
-        private String parametros;
-        private String respuesta;
-        private Boolean error;
-    }
 }

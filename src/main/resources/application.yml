@@ -1,0 +1,30 @@
+spring:
+  application:
+    name: Trabajo Practico Tenpo Microservicio-Kafka
+  server:
+    port: 8080
+  profiles:
+    active: ${APP_PROFILE:dev}
+    group:
+      prod:
+        - DBProperties
+      dev:
+        - H2Properties
+
+feign:
+  client:
+    config:
+      connectTimeout: 5000
+      readTimeout: 5000
+    default-to-properties: true
+
+FeignApi:
+  url: https://www.random.org
+  numero: 2
+  decimal: 1
+  col: 1
+  formato: plain
+
+logging:
+  level:
+    com.IPorcentajeService: DEBUG
