@@ -31,3 +31,7 @@ build/
 
 ### VS Code ###
 .vscode/
+
+V1_Init_Schema_H2.sql
+DBConfig.java
+H2Properties.yml
