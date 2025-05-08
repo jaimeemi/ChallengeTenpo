@@ -13,6 +13,8 @@ spring:
     include:
       - kafka
 
+  kafka:
+    bootstrap-servers: kafka:9092
   # Configuración para desactivar TestContainers en desarrollo
   autoconfigure:
     exclude: org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration
