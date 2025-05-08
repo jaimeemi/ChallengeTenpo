@@ -6,7 +6,7 @@ import com.challengeTenpo.exceptions.FeignApiException;
 import com.challengeTenpo.models.Request.CalculoDinamicoRequest;
 import com.challengeTenpo.models.Response.CalculoDinamicoResponse;
 import com.challengeTenpo.service.FeignApi.IPorcentajeService;
-import com.challengeTenpo.service.ICalculosService;
+import com.challengeTenpo.service.Imp.CalculosServiceImp;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,7 +21,7 @@ import static org.mockito.Mockito.when;
 class CalculosServiceImpTest {
 
     @InjectMocks
-    private ICalculosService calculosService;
+    private CalculosServiceImp calculosService;
 
     @Mock
     private IPorcentajeService porcentajeService;

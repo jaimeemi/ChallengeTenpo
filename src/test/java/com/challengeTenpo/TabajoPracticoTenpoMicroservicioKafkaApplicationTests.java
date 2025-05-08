@@ -17,6 +17,6 @@ public class TabajoPracticoTenpoMicroservicioKafkaApplicationTests {
 
 	@Test
 	void contextLoads() {
-		// Test básico de carga de contexto
+
 	}
 }

@@ -146,7 +146,7 @@ public class CalculosServiceImp implements ICalculosService {
     @CacheEvict(value = CACHE_NOMBRE, allEntries = true)
     @Scheduled(fixedRate = 30 * 60 * 1000)
     public void limpiarCachePorcentaje() {
-        log.info("Limpiando caché de porcentajes");
+        log.info("Limpiando cache de porcentajes");
     }
 
 }
