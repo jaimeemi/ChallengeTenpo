@@ -10,7 +10,6 @@ import com.challengeTenpo.models.Response.CalculoDinamicoResponse;
 import com.challengeTenpo.models.Response.HistorialCalculosResponse;
 import com.challengeTenpo.models.entities.HistorialCalculosEntity;
 import com.challengeTenpo.repository.ICalculosRepository;
-//import com.challengeTenpo.repository.mappers.HistorialCalculosMapper;
 import com.challengeTenpo.service.ICalculosService;
 import com.challengeTenpo.service.FeignApi.IPorcentajeService;
 import com.challengeTenpo.service.Kafka.IKafkaService;
@@ -24,7 +23,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -35,7 +33,6 @@ public class CalculosServiceImp implements ICalculosService {
     private final ICalculosRepository calculosRepository;
     private final RedisTemplate<String, Double> redisTemplate;
     private final IKafkaService kafkaService;
-//    private final HistorialCalculosMapper mapper;
 
     private static final String PORCENTAJE_CACHE = "Percentage";
     private static final String CACHE_NOMBRE = "percentageCache";
@@ -45,12 +42,10 @@ public class CalculosServiceImp implements ICalculosService {
                               ICalculosRepository calculosRepository,
                               RedisTemplate<String, Double> redisTemplate,
                               IKafkaService kafkaService) {
-//                              ,HistorialCalculosMapper mapper) {
         this.porcentajeService = porcentajeService;
         this.calculosRepository = calculosRepository;
         this.redisTemplate = redisTemplate;
         this.kafkaService = kafkaService;
-//        this.mapper = mapper;
     }
 
     @Override
@@ -61,7 +56,7 @@ public class CalculosServiceImp implements ICalculosService {
                    FeignApiException,
                    BaseDatosException {
 
-        CalculoDinamicoResponse response = null;
+        CalculoDinamicoResponse response = new CalculoDinamicoResponse();
         double numeroAleatorioMiddelware;
         double resultado;
         log.info(" Iniciando Servicio de Calculo Dinamico");
@@ -86,6 +81,7 @@ public class CalculosServiceImp implements ICalculosService {
             log.error("Error Proceso a Base de Datos : "+ e.getMessage());
             throw new BaseDatosException();
         }
+
         return response;
     }
 
@@ -99,9 +95,12 @@ public class CalculosServiceImp implements ICalculosService {
 
     private double llamadaMiddelware(){
         double porcentaje;
+        String resuestaMidd;
         try{
             log.info("Llamada a APi MiddelWare para obtener Porcentaje");
-            porcentaje = porcentajeService.obtenerPorcentaje();
+            resuestaMidd = porcentajeService.obtenerPorcentaje();
+            log.info("Numero porcentaje: "+ resuestaMidd);
+            porcentaje = Double.parseDouble( resuestaMidd.trim());
 
             log.info("Guardando Ultimo Porcentaje");
             redisTemplate.opsForValue().set(PORCENTAJE_CACHE, porcentaje);
