@@ -74,14 +74,4 @@ El proyecto incluye las siguientes dependencias:
 - Instrucciones claras para ejecutar el servicio están incluidas en este README.
 
 ## Tests
-- Se implementan pruebas unitarias para los cálculos y manejo de caché.
-
-## Contribuciones
-Las contribuciones son bienvenidas. Si deseas mejorar este proyecto, por favor abre un issue o un pull request.
-
-## Licencia
-Este proyecto está bajo la Licencia MIT.
-
-
-## Licencia
-Este proyecto está bajo la Licencia MIT.
+- Se implementan pruebas unitarias para las clase implementadas

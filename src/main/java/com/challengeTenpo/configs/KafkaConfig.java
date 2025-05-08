@@ -1,6 +1,6 @@
 package com.challengeTenpo.configs;
 
-import com.challengeTenpo.models.DTO.HistorialCalculosDTO;
+import com.challengeTenpo.models.entities.HistorialCalculosEntity;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -19,7 +19,7 @@ import java.util.Map;
 public class KafkaConfig {
 
     @Bean
-    public ProducerFactory<String, HistorialCalculosDTO> producerFactory() {
+    public ProducerFactory<String, HistorialCalculosEntity> producerFactory() {
         Map<String, Object> configProps = new HashMap<>();
         configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka:9092");
         configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
@@ -28,12 +28,12 @@ public class KafkaConfig {
     }
 
     @Bean
-    public KafkaTemplate<String, HistorialCalculosDTO> kafkaTemplate() {
+    public KafkaTemplate<String, HistorialCalculosEntity> kafkaTemplate() {
         return new KafkaTemplate<>(producerFactory());
     }
 
     @Bean
-    public ConsumerFactory<String, HistorialCalculosDTO> consumerFactory() {
+    public ConsumerFactory<String, HistorialCalculosEntity> consumerFactory() {
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "kafka:9092");
         props.put(ConsumerConfig.GROUP_ID_CONFIG, "call-history-group");
@@ -45,8 +45,8 @@ public class KafkaConfig {
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, HistorialCalculosDTO> kafkaListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, HistorialCalculosDTO> factory =
+    public ConcurrentKafkaListenerContainerFactory<String, HistorialCalculosEntity> kafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, HistorialCalculosEntity> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
         return factory;

@@ -10,7 +10,7 @@ import com.challengeTenpo.models.Response.CalculoDinamicoResponse;
 import com.challengeTenpo.models.Response.HistorialCalculosResponse;
 import com.challengeTenpo.models.entities.HistorialCalculosEntity;
 import com.challengeTenpo.repository.ICalculosRepository;
-import com.challengeTenpo.repository.mappers.HistorialCalculosMapper;
+//import com.challengeTenpo.repository.mappers.HistorialCalculosMapper;
 import com.challengeTenpo.service.ICalculosService;
 import com.challengeTenpo.service.FeignApi.IPorcentajeService;
 import com.challengeTenpo.service.Kafka.IKafkaService;
@@ -24,6 +24,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -34,7 +35,7 @@ public class CalculosServiceImp implements ICalculosService {
     private final ICalculosRepository calculosRepository;
     private final RedisTemplate<String, Double> redisTemplate;
     private final IKafkaService kafkaService;
-    private final HistorialCalculosMapper mapper;
+//    private final HistorialCalculosMapper mapper;
 
     private static final String PORCENTAJE_CACHE = "Percentage";
     private static final String CACHE_NOMBRE = "percentageCache";
@@ -43,13 +44,13 @@ public class CalculosServiceImp implements ICalculosService {
     public CalculosServiceImp(IPorcentajeService porcentajeService,
                               ICalculosRepository calculosRepository,
                               RedisTemplate<String, Double> redisTemplate,
-                              IKafkaService kafkaService,
-                              HistorialCalculosMapper mapper) {
+                              IKafkaService kafkaService) {
+//                              ,HistorialCalculosMapper mapper) {
         this.porcentajeService = porcentajeService;
         this.calculosRepository = calculosRepository;
         this.redisTemplate = redisTemplate;
         this.kafkaService = kafkaService;
-        this.mapper = mapper;
+//        this.mapper = mapper;
     }
 
     @Override
@@ -127,17 +128,19 @@ public class CalculosServiceImp implements ICalculosService {
 
     @Override
     public List<HistorialCalculosResponse> historial() {
-        List<HistorialCalculosResponse> historial = null;
-
-        try{
+        try {
             log.info("Buscando Historial de Calculo en Base de Datos");
             List<HistorialCalculosEntity> entities = calculosRepository.findAllByOrderByFechaDesc();
-            historial = mapper.entitiesToResponses(entities);
-        } catch (SinHistorialCalculosException e) {
-            log.error("Error buscando Historial de Calculo en Base de Datos");
+
+            if (entities == null || entities.isEmpty()) {
+                throw new SinHistorialCalculosException();
+            }
+
+            return HistorialCalculosResponse.fromEntities(entities);
+        } catch (Exception e) {
+            log.error("Error buscando Historial de Calculo en Base de Datos", e);
             throw new SinHistorialCalculosException();
         }
-        return historial;
     }
 
     @CacheEvict(value = CACHE_NOMBRE, allEntries = true)

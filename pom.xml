@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.4.5</version>
+		<version>3.3.6</version>
 		<relativePath/>
 	</parent>
 
@@ -20,6 +20,10 @@
 		<java.version>17</java.version>
 		<lombok.version>1.18.30</lombok.version>
 		<springdoc.version>2.3.0</springdoc.version>
+<!--		<spring-cloud.version>2023.0.0</spring-cloud.version>-->
+
+<!--		<mapstruct.version>1.5.5.Final</mapstruct.version>-->
+<!--		<spring-boot.version>3.4.5</spring-boot.version>-->
 	</properties>
 
 	<dependencies>
@@ -75,7 +79,7 @@
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-openfeign</artifactId>
-			<version>4.1.1</version> <!-- Versión compatible con Spring Boot 3.4.5 -->
+			<version>4.1.1</version>
 		</dependency>
 
 		<!-- Lombok  -->
@@ -93,12 +97,18 @@
 			<version>${springdoc.version}</version>
 		</dependency>
 
-		<!--	para mappear objetos	-->
+<!--		&lt;!&ndash;	para mappear objetos	&ndash;&gt;-->
 		<dependency>
 			<groupId>org.mapstruct</groupId>
 			<artifactId>mapstruct</artifactId>
 			<version>1.5.5.Final</version>
 		</dependency>
+<!--		<dependency>-->
+<!--			<groupId>org.mapstruct</groupId>-->
+<!--			<artifactId>mapstruct-processor</artifactId>-->
+<!--			<version>${mapstruct.version}</version>-->
+<!--			<scope>provided</scope>-->
+<!--		</dependency>-->
 
 		<!-- Test -->
 		<dependency>
@@ -119,6 +129,18 @@
 		</dependency>
 	</dependencies>
 
+<!--	<dependencyManagement>-->
+<!--		<dependencies>-->
+<!--			<dependency>-->
+<!--				<groupId>org.springframework.boot</groupId>-->
+<!--				<artifactId>spring-boot-dependencies</artifactId>-->
+<!--				<version>${spring-boot.version}</version>-->
+<!--				<type>pom</type>-->
+<!--				<scope>import</scope>-->
+<!--			</dependency>-->
+<!--		</dependencies>-->
+<!--	</dependencyManagement>-->
+
 	<build>
 		<plugins>
 			<!-- Maven Compiler Plugin con configuración para Lombok -->
@@ -130,11 +152,25 @@
 					<source>${java.version}</source>
 					<target>${java.version}</target>
 					<annotationProcessorPaths>
+
 						<path>
 							<groupId>org.projectlombok</groupId>
 							<artifactId>lombok</artifactId>
 							<version>${lombok.version}</version>
 						</path>
+
+<!--						<path>-->
+<!--							<groupId>org.mapstruct</groupId>-->
+<!--							<artifactId>mapstruct-processor</artifactId>-->
+<!--							<version>${mapstruct.version}</version>-->
+<!--						</path>-->
+
+<!--						<path>-->
+<!--							<groupId>org.projectlombok</groupId>-->
+<!--							<artifactId>lombok-mapstruct-binding</artifactId>-->
+<!--							<version>0.2.0</version>-->
+<!--						</path>-->
+
 					</annotationProcessorPaths>
 				</configuration>
 			</plugin>

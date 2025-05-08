@@ -1,8 +1,8 @@
 spring:
   application:
-    name: Trabajo Practico Tenpo Microservicio-Kafka
+    name: Trabajo Practico Tenpo Microservicio
   server:
-    port: 8080
+    port: 8085
   profiles:
     active: ${APP_PROFILE:dev}
     group:

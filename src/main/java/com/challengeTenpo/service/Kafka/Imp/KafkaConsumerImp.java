@@ -20,7 +20,12 @@ public class KafkaConsumerImp {
 
     @KafkaListener(topics = "historial-calculations", groupId = "call-history-group")
     public void consume(HistorialCalculosEntity historial) {
-        log.info("Recepcion de mensaje y Persistiendo con kafka");
-        historialRepository.save(historial);
+        log.info("Recepcion de mensaje: {} y Persistiendo con kafka consumer", historial);
+        try {
+            historialRepository.save(historial);
+            log.info("Mensaje recivido y persistido");
+        } catch (Exception e) {
+            log.error("Falla durante la persistencia del mensaje. Error: "+ e);
+        }
     }
 }

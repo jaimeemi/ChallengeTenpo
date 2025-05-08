@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 public class KafkaServiceImp implements IKafkaService {
 
     private static final String TOPIC = "historial-calculations";
-    private static final String TOPIC_HISTORIAL = "historial-calculations";
 
     private final KafkaTemplate<String, HistorialCalculosEntity> kafkaTemplate;
     private final ICalculosRepository historialRepository;
@@ -31,14 +30,18 @@ public class KafkaServiceImp implements IKafkaService {
     @Override
     @Async
     public void send(HistorialCalculosEntity historial) {
-        kafkaTemplate.send(TOPIC, historial);
+        try {
+            kafkaTemplate.send(TOPIC, historial).get();
+            log.info("Mensaje enviado correctamente");
+        } catch (Exception e) {
+            log.error("Error durante el envio del mensaje: {}", historial, e.getMessage());
+        }
     }
 
     @KafkaListener(topics = TOPIC, groupId = "call-history-group")
     public void consume(HistorialCalculosEntity historial) {
-        log.info("Enviando mensaje a Kafka");
-        kafkaTemplate.send(TOPIC_HISTORIAL, historial);
+        log.info("Enviando mensaje a Kafka, mensaje: {}", historial);
+        kafkaTemplate.send(TOPIC, historial);
     }
-
 
 }
