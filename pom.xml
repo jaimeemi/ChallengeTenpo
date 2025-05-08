@@ -55,6 +55,11 @@
 			<groupId>org.springframework.kafka</groupId>
 			<artifactId>spring-kafka</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>kafka</artifactId>
+			<version>1.19.1</version>
+		</dependency>
 
 		<!-- Redis -->
 		<dependency>
@@ -97,7 +102,7 @@
 			<version>${springdoc.version}</version>
 		</dependency>
 
-<!--		&lt;!&ndash;	para mappear objetos	&ndash;&gt;-->
+<!--		para mappear objetos Lo elimine ya que no uso mappers-->
 		<dependency>
 			<groupId>org.mapstruct</groupId>
 			<artifactId>mapstruct</artifactId>

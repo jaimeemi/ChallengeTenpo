@@ -50,7 +50,7 @@ services:
     build: .
     container_name: ChallengeTenpo
     ports:
-      - "8080:8080"
+      - "8085:8085"
     depends_on:
       postgres:
         condition: service_healthy
@@ -59,6 +59,8 @@ services:
       kafka:
         condition: service_started
     environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_SERVER_PORT: "8085"
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/historialCalculos_DB
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: 123456

@@ -33,5 +33,5 @@ build/
 .vscode/
 
 src/main/resources/DB/V1_Init_Schema_H2.sql
-src/main/resources/H2Properties.yml
+src/main/resources/application-h2.yml
 src/main/java/com/challengeTenpo/configs/DBConfig.java

@@ -7,9 +7,12 @@ spring:
     active: ${APP_PROFILE:dev}
     group:
       prod:
-        - DBProperties
+        - application-pgsql
       dev:
-        - H2Properties
+        - application-h2
+
+    include:
+      - kafka
 
 feign:
   client:
@@ -28,3 +31,10 @@ FeignApi:
 logging:
   level:
     com.IPorcentajeService: DEBUG
+    root: INFO
+    com.challengeTenpo: DEBUG
+    # Con las siguientes lineas se crea una carpeta y un archivo de logs en la raiz del proyecto
+#  file:
+#    name: logs/application.log
+
+# URL para acceder a Swagger: http://localhost:8085/swagger-ui.html
