@@ -3,6 +3,7 @@ package com.challengeTenpo;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 import com.challengeTenpo.controller.Imp.CalculoDinamicoControllerImp;
 import com.challengeTenpo.exceptions.BaseDatosException;
@@ -88,13 +89,12 @@ public class CalculoDinamicoControllerImplTest {
     }
 
     @Test
-    @DisplayName("historial - Debe manejar SinHistorialCalculosException")
+    @DisplayName("historial - SinHistorialCalculosException")
     void historial_SinHistorialException() throws Exception {
-        when(calculosService.historial())
-                .thenThrow(new SinHistorialCalculosException("No hay datos"));
-
+        when(calculosService.historial()).thenThrow(new SinHistorialCalculosException("No hay datos"));
         ResponseEntity<List<HistorialCalculosResponse>> response = controller.historial();
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNull(response.getBody());
     }
 }

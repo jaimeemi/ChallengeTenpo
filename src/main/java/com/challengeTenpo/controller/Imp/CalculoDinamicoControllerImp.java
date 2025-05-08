@@ -61,10 +61,10 @@ public class CalculoDinamicoControllerImp implements ICalculoDinamicoController 
             log.info("Servicio para Historial de Calculo");
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (SinHistorialCalculosException e) {
-            log.error("Error en el calculo : "+ e.getMessage());
-            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+            log.error("Error Listando Historial : "+ e.getMessage());
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
-
-
     }
+
+
 }

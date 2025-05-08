@@ -1,7 +1,7 @@
+# Proyecto API REST en Spring Boot
 
-# Proyecto Tenpo
-
-Este proyecto es un microservicio que utiliza Kafka para realizar operaciones de manera eficiente y escalable. A continuación, se detallan las características y configuraciones del proyecto.
+## Descripción General
+Este proyecto consiste en una API REST desarrollada en Spring Boot (Java 21) que permite realizar cálculos dinámicos con un porcentaje adicional, almacenar estos cálculos en caché y llevar un historial de las operaciones realizadas.
 
 ## Características
 - Microservicio basado en Kafka.
@@ -13,10 +13,47 @@ Este proyecto es un microservicio que utiliza Kafka para realizar operaciones de
 - Integración con H2 como base de datos en memoria para pruebas.
 - Base de datos PostgreSQL para almacenar el historial de llamadas.
 
-## Funcionalidades
-1. **Cálculo con porcentaje dinámico**: Un endpoint que recibe `num1` y `num2`, los suma y aplica un porcentaje adicional obtenido de un servicio externo.
-2. **Caché del porcentaje**: Almacena el porcentaje obtenido en memoria durante 30 minutos. Si el servicio externo falla, utiliza el último valor almacenado.
-3. **Historial de llamadas**: Un endpoint que devuelve el historial de llamadas (fecha, endpoint, parámetros, respuesta o error).
+## Funcionalidades Principales
+1. **Cálculo Dinámico**:
+   - Endpoint: `/api/calculo-dinamico/calcular`
+   - Método: `GET`
+   - Parámetros: `num1`, `num2`
+   - Respuesta: Devuelve el resultado de `num1 + num2 + porcentaje`.
+
+2. **Historial de Llamadas**:
+   - Endpoint: `/api/calculo-dinamico/historial`
+   - Método: `GET`
+   - Respuesta: Devuelve el historial de cálculos realizados.
+
+## Caché
+El porcentaje obtenido se almacena en memoria durante 30 minutos. Si el servicio externo falla, se utiliza el último valor almacenado.
+
+## Instrucciones para Ejecutar el Proyecto
+1. **Construir la imagen**:
+   ```bash
+   docker-compose build
+   ```
+2. **Ejecutar los contenedores**:
+   ```bash
+   docker-compose up
+   ```
+
+## Ejemplos de Comandos `curl`
+1. **Cálculo Dinámico**:
+   ```bash
+   curl -X GET "http://localhost:8085/api/calculo-dinamico/calcular?num1=10&num2=20"
+   ```
+
+2. **Historial de Llamadas**:
+   ```bash
+   curl -X GET "http://localhost:8085/api/calculo-dinamico/historial"
+   ```
+
+## Pruebas
+Se implementan pruebas unitarias utilizando JUnit y Mockito para garantizar la funcionalidad del cálculo y el manejo del caché.
+
+## Notas Finales
+Este proyecto es una entrega para un desafío técnico. No se han implementado todas las pruebas posibles, ya que el objetivo es demostrar el conocimiento sobre los temas tratados.
 
 ## Inversión de Control (IoC) y Dependencia de Inyección (DI)
 El proyecto utiliza IoC y DI para gestionar las dependencias entre los componentes. Esto permite una mayor flexibilidad y facilita las pruebas unitarias.
@@ -35,7 +72,6 @@ docker-compose build --no-cache  # Reconstruye sin usar caché
 docker-compose up  # Inicia los servicios
 ```
 Esto construirá la imagen y levantará los servicios definidos en el archivo `docker-compose.yml`.
-
 
 ## Dependencias
 El proyecto incluye las siguientes dependencias:
@@ -68,10 +104,6 @@ El proyecto incluye las siguientes dependencias:
   - `spring-boot-starter-test` (test)
   - `spring-kafka-test` (test)
 
-
 ## Documentación
 - Se utiliza Swagger para la documentación de la API.
 - Instrucciones claras para ejecutar el servicio están incluidas en este README.
-
-## Tests
-- Se implementan pruebas unitarias para las clase implementadas
