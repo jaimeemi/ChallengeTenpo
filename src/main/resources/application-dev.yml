@@ -1,0 +1,20 @@
+spring:
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: dev-group
+      auto-offset-reset: earliest
+    properties:
+      # Reduce logs de conexión
+      security.protocol: PLAINTEXT
+      connections.max.idle.ms: 60000
+
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration
+
+logging:
+  level:
+    org.apache.kafka.clients: ERROR
+    org.springframework.kafka: ERROR
+    org.hibernate: WARN
+    com.challengeTenpo: INFO

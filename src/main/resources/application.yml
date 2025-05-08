@@ -10,16 +10,22 @@ spring:
         - application-pgsql
       dev:
         - application-h2
-
     include:
       - kafka
+
+  # Configuración para desactivar TestContainers en desarrollo
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration
+
+testcontainers:
+  enabled: false
 
 feign:
   client:
     config:
-      connectTimeout: 5000
-      readTimeout: 5000
-    default-to-properties: true
+      default:
+        connectTimeout: 5000
+        readTimeout: 5000
 
 FeignApi:
   url: https://www.random.org
@@ -29,12 +35,16 @@ FeignApi:
   formato: plain
 
 logging:
+  config: classpath:logback-spring.xml
   level:
-    com.IPorcentajeService: DEBUG
     root: INFO
-    com.challengeTenpo: DEBUG
-    # Con las siguientes lineas se crea una carpeta y un archivo de logs en la raiz del proyecto
-#  file:
-#    name: logs/application.log
+    org:
+      springframework: WARN
+      hibernate: WARN
+    com.challengeTenpo: INFO
 
-# URL para acceder a Swagger: http://localhost:8085/swagger-ui.html
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
