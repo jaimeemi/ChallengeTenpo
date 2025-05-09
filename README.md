@@ -48,9 +48,21 @@ El porcentaje obtenido se almacena en memoria durante 30 minutos. Si el servicio
    ```bash
    curl -X GET "http://localhost:8085/api/calculo-dinamico/historial"
    ```
+   
+## PRUEBAS LOCALES en Projecto Tipo MAVEN con las siguientes configuraciones:
+    En la linea "Run": spring-boot:run -Dspring-boot.run.profiles=dev "-Dspring-boot.run.jvmArguments=-Dserver.port=8085 -Dspring.autoconfigure.exclude=org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration"
+ 
+    Mientras que en "VM options": -Dserver.port=8085 -Dspring.autoconfigure.exclude=org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration
+
+## Documentación
+- Se utiliza Swagger para la documentación de la API.
+  SI ejecuta el projecto en mvn local, Podra apuntar a esta url = http://localhost:8085/swagger-ui/index.html#/Calculos/calcular
+  Para realizar pruebas en swagger
+
 
 ## Pruebas
 Se implementan pruebas unitarias utilizando JUnit y Mockito para garantizar la funcionalidad del cálculo y el manejo del caché.
+No sea realizaron todos los test. Solo implemente algunos para que puedan reconocer el el formato de testeo mio 
 
 ## Notas Finales
 Este proyecto es una entrega para un desafío técnico. No se han implementado todas las pruebas posibles, ya que el objetivo es demostrar el conocimiento sobre los temas tratados.
@@ -104,6 +116,4 @@ El proyecto incluye las siguientes dependencias:
   - `spring-boot-starter-test` (test)
   - `spring-kafka-test` (test)
 
-## Documentación
-- Se utiliza Swagger para la documentación de la API.
 - Instrucciones claras para ejecutar el servicio están incluidas en este README.

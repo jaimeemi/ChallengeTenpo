@@ -1,21 +1,22 @@
 package com.challengeTenpo.service.Kafka.Imp;
 
-
 import com.challengeTenpo.models.entities.HistorialCalculosEntity;
 import com.challengeTenpo.repository.ICalculosRepository;
-import com.challengeTenpo.service.Kafka.IKafkaService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.SendResult;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.util.concurrent.CompletableFuture;
+
 @Service
 @Slf4j
-public class KafkaServiceImp implements IKafkaService {
+public class KafkaServiceImp {
 
     private static final String TOPIC = "historial-calculations";
+    private static final String TOPIC_HISTORIAL = "historial-calculations";
 
     private final KafkaTemplate<String, HistorialCalculosEntity> kafkaTemplate;
     private final ICalculosRepository historialRepository;
@@ -27,21 +28,24 @@ public class KafkaServiceImp implements IKafkaService {
         this.historialRepository = historialRepository;
     }
 
-    @Override
     @Async
     public void send(HistorialCalculosEntity historial) {
         try {
-            kafkaTemplate.send(TOPIC, historial).get();
-            log.info("Mensaje enviado correctamente");
+            CompletableFuture<SendResult<String, HistorialCalculosEntity>> future =
+                    kafkaTemplate.send(TOPIC, historial);
+
+            future.whenComplete((result, ex) -> {
+                if (ex == null) {
+                    log.info("Mensaje enviado correctamente al topic {} con offset {}",
+                            result.getRecordMetadata().topic(),
+                            result.getRecordMetadata().offset());
+                } else {
+                    log.error("Error durante el envío del mensaje: {}", historial, ex);
+                }
+            });
+
         } catch (Exception e) {
-            log.error("Error durante el envio del mensaje: {}", historial, e.getMessage());
+            log.error("Excepción al enviar el mensaje: {}", historial, e);
         }
     }
-
-    @KafkaListener(topics = TOPIC, groupId = "call-history-group")
-    public void consume(HistorialCalculosEntity historial) {
-        log.info("Enviando mensaje a Kafka, mensaje: {}", historial);
-        kafkaTemplate.send(TOPIC, historial);
-    }
-
 }
