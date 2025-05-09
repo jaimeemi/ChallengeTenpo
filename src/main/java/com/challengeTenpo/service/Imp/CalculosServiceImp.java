@@ -51,95 +51,70 @@ public class CalculosServiceImp implements ICalculosService {
     @Override
     @Transactional
     @Cacheable(value = CACHE_NOMBRE, unless = "#result == null")
-    public CalculoDinamicoResponse CalculoDinamico(CalculoDinamicoRequest request, String url)
-            throws CalculoDinamicoException,
-                   FeignApiException,
-                   BaseDatosException {
-
+    public CalculoDinamicoResponse CalculoDinamico(CalculoDinamicoRequest request, String url) {
         CalculoDinamicoResponse response = new CalculoDinamicoResponse();
-        double numeroAleatorioMiddelware;
-        double resultado;
-        log.info(" Iniciando Servicio de Calculo Dinamico");
-        try{
+        double numeroAleatorioMiddelware = llamadaMiddelware();
+        double resultado = realizarCalculo(request, numeroAleatorioMiddelware);
 
-            numeroAleatorioMiddelware = llamadaMiddelware();
-
-            resultado = realizarCalculo(request, numeroAleatorioMiddelware);
-            response.setResultado( resultado );
-
-            persistirOperacion(request, resultado, url, null );
-
-        } catch (CalculoDinamicoException e) {
-            log.error("Error en el calculo : "+ e.getMessage());
-            persistirOperacion( request, 0,url, e.getMessage() );
-            throw new CalculoDinamicoException();
-        } catch (FeignApiException e) {
-            log.error("Error consulta Api MiddelWare : "+ e.getMessage());
-            persistirOperacion( request, 0,url, e.getMessage() );
-            throw new FeignApiException();
-        } catch (BaseDatosException e) {
-            log.error("Error Proceso a Base de Datos : "+ e.getMessage());
-            throw new BaseDatosException();
-        }
+        response.setResultado(resultado);
+        persistirOperacion(request, resultado, url, null);
 
         return response;
     }
 
-    private double realizarCalculo(CalculoDinamicoRequest request, double numeroAleatorio){
+    private double realizarCalculo(CalculoDinamicoRequest request, double numeroAleatorio) {
         log.info("Realizando Calculo");
         if(numeroAleatorio == 0) {
             throw new CalculoDinamicoException("El porcentaje no puede ser cero");
         }
-        return request.getNumero1() + request.getNumero2() *  numeroAleatorio ;
+        return request.getNumero1() + request.getNumero2() * numeroAleatorio;
     }
 
-    private double llamadaMiddelware(){
-        double porcentaje;
-        String resuestaMidd;
-        try{
+    private double llamadaMiddelware() {
+        try {
             log.info("Llamada a APi MiddelWare para obtener Porcentaje");
-            resuestaMidd = porcentajeService.obtenerPorcentaje();
+            String resuestaMidd = porcentajeService.obtenerPorcentaje();
             log.info("Numero porcentaje: "+ resuestaMidd);
-            porcentaje = Double.parseDouble( resuestaMidd.trim());
+            double porcentaje = Double.parseDouble(resuestaMidd.trim());
 
             log.info("Guardando Ultimo Porcentaje");
             redisTemplate.opsForValue().set(PORCENTAJE_CACHE, porcentaje);
-
+            return porcentaje;
         } catch (FeignApiException e) {
-            throw new FeignApiException(e.getMessage() + "y no hay porcentaje en caché");
+            Double cachedPercentage = redisTemplate.opsForValue().get(PORCENTAJE_CACHE);
+            if (cachedPercentage == null) {
+                throw new FeignApiException(e.getMessage() + " y no hay porcentaje en caché");
+            }
+            return cachedPercentage;
         }
-        return porcentaje;
     }
 
-    private void persistirOperacion(CalculoDinamicoRequest request, double resultado, String url, String mensajeError)
-            throws BaseDatosException {
-        HistorialCalculosDTO persistencia = new HistorialCalculosDTO(request, resultado,url , mensajeError);
+    private void persistirOperacion(CalculoDinamicoRequest request, double resultado,
+                                    String url, String mensajeError) {
         /*
         * Otra forma es usar Optional<HistorialCalculosDTO>
         * Optional<HistorialCalculosDTO> persistencia = Optional.of(persistencia);
         */
-
-        HistorialCalculosEntity persistenciaEntity = HistorialCalculosDTO.toEntity(persistencia);
-        log.info("Persistiendo Calculo en Base de Datos en forma asincronica con kafka");
-        kafkaService.send(persistenciaEntity);
-
+        try {
+            HistorialCalculosDTO persistencia = new HistorialCalculosDTO(request, resultado, url, mensajeError);
+            HistorialCalculosEntity persistenciaEntity = HistorialCalculosDTO.toEntity(persistencia);
+            log.info("Persistiendo Calculo en Base de Datos en forma asincronica con kafka");
+            kafkaService.send(persistenciaEntity);
+        } catch (Exception e) {
+            throw new BaseDatosException("Error al persistir operación: " + e.getMessage());
+        }
     }
 
     @Override
     public List<HistorialCalculosResponse> historial() {
-        try {
-            log.info("Buscando Historial de Calculo en Base de Datos");
-            List<HistorialCalculosEntity> entities = calculosRepository.findAllByOrderByFechaDesc();
+        log.info("Buscando Historial de Calculo en Base de Datos");
+        List<HistorialCalculosEntity> entities = calculosRepository.findAllByOrderByFechaDesc();
 
-            if (entities == null || entities.isEmpty()) {
-                throw new SinHistorialCalculosException();
-            }
-
-            return HistorialCalculosResponse.fromEntities(entities);
-        } catch (Exception e) {
-            log.error("Error buscando Historial de Calculo en Base de Datos", e);
+        if (entities == null || entities.isEmpty()) {
             throw new SinHistorialCalculosException();
         }
+
+        return HistorialCalculosResponse.fromEntities(entities);
     }
 
     @CacheEvict(value = CACHE_NOMBRE, allEntries = true)

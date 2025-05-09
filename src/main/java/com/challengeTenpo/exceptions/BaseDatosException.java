@@ -1,40 +1,30 @@
 package com.challengeTenpo.exceptions;
 
-import java.sql.SQLException;
+import lombok.Getter;
 
-public class BaseDatosException extends SQLException {
-
+@Getter
+public class BaseDatosException extends RuntimeException {
     private static final long serialVersionUID = 4L;
-    private String mensaje = "Error durante la comunicacion con la base de datos";
-
-    public BaseDatosException(String reason, String SQLState, int vendorCode) {
-        super(reason, SQLState, vendorCode);
-    }
-
-    public BaseDatosException(String reason, String SQLState) {
-        super(reason, SQLState);
-    }
-
-    public BaseDatosException(String reason) {
-        super(reason);
-    }
+    private final String codigoError;
+    private final String mensaje;
 
     public BaseDatosException() {
+        this("Error durante la comunicación con la base de datos", "DB-001");
     }
 
-    public BaseDatosException(Throwable cause) {
-        super(cause);
+    public BaseDatosException(String mensaje) {
+        this(mensaje, "DB-001");
     }
 
-    public BaseDatosException(String reason, Throwable cause) {
-        super(reason, cause);
+    public BaseDatosException(String mensaje, String codigoError) {
+        super(mensaje);
+        this.mensaje = mensaje;
+        this.codigoError = codigoError;
     }
 
-    public BaseDatosException(String reason, String sqlState, Throwable cause) {
-        super(reason, sqlState, cause);
-    }
-
-    public BaseDatosException(String reason, String sqlState, int vendorCode, Throwable cause) {
-        super(reason, sqlState, vendorCode, cause);
+    public BaseDatosException(String mensaje, Throwable cause, String codigoError) {
+        super(mensaje, cause);
+        this.mensaje = mensaje;
+        this.codigoError = codigoError;
     }
 }

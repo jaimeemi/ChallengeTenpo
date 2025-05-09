@@ -33,38 +33,24 @@ public class CalculoDinamicoControllerImp implements ICalculoDinamicoController 
 
     @Override
     public ResponseEntity<CalculoDinamicoResponse> calcular(double numero1, double numero2) {
-        CalculoDinamicoResponse response = null;
         CalculoDinamicoRequest request = crearCalculoDinamicoRequest(numero1, numero2);
-        try{
-            log.info("Servicio de Calculo Dinamico");
-            response = calculosService.CalculoDinamico(request, peticion.getRequestURI() );
-        } catch (CalculoDinamicoException | BaseDatosException e) {
-            log.error("Error en el calculo : "+ e.getMessage());
-            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-        }
-        return  new ResponseEntity<>(response, HttpStatus.OK);
+        log.info("Servicio de Calculo Dinamico");
+        CalculoDinamicoResponse response = calculosService.CalculoDinamico(request, peticion.getRequestURI());
+        return ResponseEntity.ok(response);
     }
 
-    private CalculoDinamicoRequest crearCalculoDinamicoRequest(double numero1, double numero2){
+    @Override
+    public ResponseEntity<List<HistorialCalculosResponse>> historial() {
+        log.info("Servicio de Historial de Calculos");
+        List<HistorialCalculosResponse> response = calculosService.historial();
+        return ResponseEntity.ok(response);
+    }
+
+    private CalculoDinamicoRequest crearCalculoDinamicoRequest(double numero1, double numero2) {
         log.info("Creacion del Objeto Peticion con: Monto: "+numero1+" Porcentaje: {}", numero2);
         CalculoDinamicoRequest request = new CalculoDinamicoRequest();
         request.setNumero1(numero1);
         request.setNumero2(numero2);
         return request;
     }
-
-    @Override
-    public ResponseEntity<List<HistorialCalculosResponse>> historial() {
-        log.info("Servicio de Historial de Calculos");
-        List<HistorialCalculosResponse> response= calculosService.historial();
-        try{
-            log.info("Servicio para Historial de Calculo");
-            return new ResponseEntity<>(response, HttpStatus.OK);
-        } catch (SinHistorialCalculosException e) {
-            log.error("Error Listando Historial : "+ e.getMessage());
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-        }
-    }
-
-
 }
