@@ -2,6 +2,7 @@ package com.challengeTenpo.service.Kafka.Imp;
 
 import com.challengeTenpo.models.entities.HistorialCalculosEntity;
 import com.challengeTenpo.repository.ICalculosRepository;
+import com.challengeTenpo.service.Kafka.IKafkaService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -13,7 +14,7 @@ import java.util.concurrent.CompletableFuture;
 
 @Service
 @Slf4j
-public class KafkaServiceImp {
+public class KafkaServiceImp implements IKafkaService {
 
     private static final String TOPIC = "historial-calculations";
     private static final String TOPIC_HISTORIAL = "historial-calculations";
