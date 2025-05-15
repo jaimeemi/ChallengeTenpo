@@ -62,7 +62,8 @@ services:
       kafka:
         condition: service_started
     environment:
-      SPRING_PROFILES_ACTIVE: kafka
+      SPRING_PROFILES_ACTIVE: "kafka,dev"
+      SPRING_LIFECYCLE_TIMEOUT_PER_SHUTDOWN_PHASE: "30s"
       SPRING_SERVER_PORT: "8085"
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/historialCalculos_DB
       SPRING_DATASOURCE_USERNAME: postgres

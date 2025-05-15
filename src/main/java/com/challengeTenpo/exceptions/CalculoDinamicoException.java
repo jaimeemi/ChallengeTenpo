@@ -1,12 +1,11 @@
 package com.challengeTenpo.exceptions;
 
+import com.challengeTenpo.exceptions.Imp.BaseException;
 import lombok.Getter;
 
 @Getter
-public class CalculoDinamicoException extends RuntimeException {
+public class CalculoDinamicoException extends BaseException {
     private static final long serialVersionUID = 1L;
-    private final String codigoError;
-    private final String mensaje;
 
     public CalculoDinamicoException() {
         this("Error en el cálculo dinámico", "CALC-001");
@@ -17,14 +16,10 @@ public class CalculoDinamicoException extends RuntimeException {
     }
 
     public CalculoDinamicoException(String mensaje, String codigoError) {
-        super(mensaje);
-        this.mensaje = mensaje;
-        this.codigoError = codigoError;
+        super(mensaje,codigoError);
     }
 
     public CalculoDinamicoException(String mensaje, Throwable cause, String codigoError) {
-        super(mensaje, cause);
-        this.mensaje = mensaje;
-        this.codigoError = codigoError;
+        super(mensaje, cause, codigoError);
     }
 }

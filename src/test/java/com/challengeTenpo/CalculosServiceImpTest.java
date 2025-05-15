@@ -1,91 +1,99 @@
 package com.challengeTenpo;
 
-import com.challengeTenpo.exceptions.BaseDatosException;
 import com.challengeTenpo.exceptions.CalculoDinamicoException;
 import com.challengeTenpo.exceptions.FeignApiException;
 import com.challengeTenpo.models.Request.CalculoDinamicoRequest;
 import com.challengeTenpo.models.Response.CalculoDinamicoResponse;
+import com.challengeTenpo.models.entities.HistorialCalculosEntity;
 import com.challengeTenpo.service.FeignApi.IPorcentajeService;
 import com.challengeTenpo.service.Imp.CalculosServiceImp;
+import com.challengeTenpo.service.Kafka.IKafkaService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 class CalculosServiceImpTest {
-
-    @InjectMocks
-    private CalculosServiceImp calculosService;
 
     @Mock
     private IPorcentajeService porcentajeService;
 
+    @Mock
+    private RedisTemplate<String, Double> redisTemplate;
+
+    @Mock
+    private ValueOperations<String, Double> valueOperations;
+
+    @Mock
+    private IKafkaService kafkaService;
+
+    @InjectMocks
+    private CalculosServiceImp calculosService;
+
+    private final String URL_EJEMPLO = "http://test.com";
+    private final String CACHE_NOMBRE = "Percentage";
+    private final CalculoDinamicoRequest request = new CalculoDinamicoRequest(100.0, 200.0);
+
     @BeforeEach
-    void init() {
+    void setUp() {
         MockitoAnnotations.openMocks(this);
+        when(redisTemplate.opsForValue()).thenReturn(valueOperations);
     }
 
     @Test
-    @DisplayName("Prueba exitosa del cálculo dinámico")
-    void CalculoDinamico_TestOk() throws Exception {
-        CalculoDinamicoRequest request = new CalculoDinamicoRequest();
-        request.setNumero1(100.0);
-        request.setNumero2(200.0);
-        String url = "http://example.com";
+    @DisplayName("Cálculo dinámico exitoso")
+    void calculoDinamico_Exitoso() throws Exception {
+        when(porcentajeService.obtenerPorcentaje()).thenReturn("0.5");
+        when(valueOperations.get(anyString())).thenReturn(null);
 
-        CalculoDinamicoResponse response = calculosService.CalculoDinamico(request, url);
+        var response = calculosService.CalculoDinamico(request, URL_EJEMPLO);
 
-        assertEquals(300, response.getResultado());
+        assertEquals(200.0, response.getResultado());
+        verify(kafkaService).send(any(HistorialCalculosEntity.class));
     }
 
     @Test
-    @DisplayName("Prueba de excepción FeignApiException")
-    void CalculoDinamico_TestFailFeignApiException() {
-        CalculoDinamicoRequest request = new CalculoDinamicoRequest();
-        request.setNumero1(100.0);
-        request.setNumero2(200.0);
-        String url = "http://example.com";
+    @DisplayName("Cálculo dinámico con error Feign")
+    void calculoDinamico_ErrorFeign() {
+        when(porcentajeService.obtenerPorcentaje()).thenThrow(new FeignApiException("Error simulado"));
+        when(valueOperations.get(CACHE_NOMBRE)).thenReturn(0.3);
 
-        when(porcentajeService.obtenerPorcentaje()).thenThrow(new FeignApiException("Error en la llamada a la API"));
+        assertDoesNotThrow(() -> {
+            CalculoDinamicoResponse response = calculosService.CalculoDinamico(request, URL_EJEMPLO);
 
-        assertThrows(FeignApiException.class, () -> {
-            calculosService.CalculoDinamico(request, url);
+            assertEquals(160.0, response.getResultado()); // 100 + (200 * 0.3)
+            verify(kafkaService).send(any(HistorialCalculosEntity.class));
         });
+
+        verify(valueOperations).get(CACHE_NOMBRE);
     }
 
     @Test
-    @DisplayName("Prueba de excepción CalculoDinamicoException")
-    void CalculoDinamico_TestFailCalculoDinamicoException() {
-        CalculoDinamicoRequest request = new CalculoDinamicoRequest();
-        request.setNumero1(100.0);
-        request.setNumero2(200.0);
-        String url = "http://example.com";
-
-        when(porcentajeService.obtenerPorcentaje()).thenThrow(new CalculoDinamicoException("Error en el cálculo"));
+    @DisplayName("Cálculo dinámico con porcentaje cero")
+    void calculoDinamico_PorcentajeCero() {
+        when(porcentajeService.obtenerPorcentaje()).thenReturn("0.0");
+        when(valueOperations.get(anyString())).thenReturn(null);
 
         assertThrows(CalculoDinamicoException.class, () -> {
-            calculosService.CalculoDinamico(request, url);
+            calculosService.CalculoDinamico(request, URL_EJEMPLO);
         });
     }
 
     @Test
-    @DisplayName("Prueba de excepción BaseDatosException")
-    void CalculoDinamico_TestFailBaseDatosException() {
-        CalculoDinamicoRequest request = new CalculoDinamicoRequest();
-        request.setNumero1(100.0);
-        request.setNumero2(200.0);
-        String url = "http://example.com";
+    @DisplayName("Cálculo dinámico con error Feign sin cache")
+    void calculoDinamico_ErrorFeignSinCache() {
+        when(porcentajeService.obtenerPorcentaje()).thenThrow(new FeignApiException("Error simulado"));
+        when(valueOperations.get(CACHE_NOMBRE)).thenReturn(null);
 
-        when(porcentajeService.obtenerPorcentaje()).thenThrow(new BaseDatosException("Error en la base de datos"));
-
-        assertThrows(BaseDatosException.class, () -> {
-            calculosService.CalculoDinamico(request, url);
+        assertThrows(FeignApiException.class, () -> {
+            calculosService.CalculoDinamico(request, URL_EJEMPLO);
         });
     }
 }

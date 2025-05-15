@@ -21,28 +21,21 @@ public class ExceptionGlobal {
                        FeignApiException.class,
                        SinHistorialCalculosException.class})
     public ResponseEntity<ErrorResponse> handleBusinessExceptions(RuntimeException ex, WebRequest request) {
-        ErrorResponse errorResponse = new ErrorResponse(
-                ex.getClass().getSimpleName(),
-                obtenerMensaje(ex),
-                request.getDescription(false),
-                obtenerCodigo(ex)
-        );
+        ErrorResponse errorResponse = crearResponse( ex, request );
         return new ResponseEntity<>(errorResponse, determinarHTTP(ex));
     }
 
     @ExceptionHandler({MethodArgumentNotValidException.class, ConstraintViolationException.class})
     public ResponseEntity<ErrorResponse> handleValidationExceptions(Exception ex, WebRequest request) {
-        ErrorResponse errorResponse = new ErrorResponse(
-                "Validation Error",
-                ex.getMessage(),
-                request.getDescription(false),
-                "VALIDATION_ERROR"
-        );
+
+        ErrorResponse errorResponse =crearResponse("Validation Error", ex, request, "VALIDATION_ERROR" );
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
     private HttpStatus determinarHTTP(RuntimeException ex) {
-        if (ex instanceof FeignApiException) {
+        if (ex instanceof CalculoDinamicoException) {
+            return HttpStatus.INTERNAL_SERVER_ERROR;
+        } else if (ex instanceof FeignApiException) {
             return HttpStatus.SERVICE_UNAVAILABLE;
         } else if (ex instanceof BaseDatosException) {
             return HttpStatus.INTERNAL_SERVER_ERROR;
@@ -80,5 +73,13 @@ public class ExceptionGlobal {
             return ((BaseDatosException) ex).getCodigoError();
         }
         return "UNKNOWN_ERROR";
+    }
+
+    private ErrorResponse crearResponse(RuntimeException ex, WebRequest request) {
+        return new ErrorResponse( ex.getClass().getSimpleName(), obtenerMensaje(ex), request.getDescription(false), obtenerCodigo(ex) );
+    }
+
+    private ErrorResponse crearResponse(String error, Exception ex, WebRequest request, String message) {
+        return new ErrorResponse( "Validation Error", ex.getMessage(), request.getDescription(false), "VALIDATION_ERROR" );
     }
 }

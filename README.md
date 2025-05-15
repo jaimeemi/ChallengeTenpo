@@ -28,7 +28,7 @@ Este proyecto consiste en una API REST desarrollada en Spring Boot (Java 21) que
 ## Caché
 El porcentaje obtenido se almacena en memoria durante 30 minutos. Si el servicio externo falla, se utiliza el último valor almacenado.
 
-## Instrucciones para Ejecutar el Proyecto
+## Instrucciones para Ejecutar el Proyecto en formato
 1. **Construir la imagen**:
    ```bash
    docker-compose build
@@ -50,9 +50,11 @@ El porcentaje obtenido se almacena en memoria durante 30 minutos. Si el servicio
    ```
    
 ## PRUEBAS LOCALES en Projecto Tipo MAVEN con las siguientes configuraciones:
-    En la linea "Run": spring-boot:run -Dspring-boot.run.profiles=dev "-Dspring-boot.run.jvmArguments=-Dserver.port=8085 -Dspring.autoconfigure.exclude=org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration"
- 
-    Mientras que en "VM options": -Dserver.port=8085 -Dspring.autoconfigure.exclude=org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration
+    # Desarrollo normal (H2 + Kafka mock)
+    mvn spring-boot:run -Dspring-boot.run.profiles=dev
+    
+    # Desarrollo con Kafka local (H2 + Kafka real)
+    mvn spring-boot:run -Dspring-boot.run.profiles=local-kafka
 
 ## Documentación
 - Se utiliza Swagger para la documentación de la API.

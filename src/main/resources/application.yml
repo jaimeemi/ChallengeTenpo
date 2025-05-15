@@ -6,21 +6,11 @@ spring:
   profiles:
     active: ${APP_PROFILE:dev}
     group:
-      prod:
-        - application-pgsql
-      dev:
-        - application-h2
-    include:
-      - kafka
-
-  kafka:
-    bootstrap-servers: kafka:9092
-  # Configuración para desactivar TestContainers en desarrollo
-  autoconfigure:
-    exclude: org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration
-
-testcontainers:
-  enabled: false
+      prod: pgsql,kafka
+      dev: h2, kafka-mock
+      local-kafka: h2, kafka
+  jpa:
+    open-in-view: false
 
 feign:
   client:

@@ -9,7 +9,7 @@ import org.testcontainers.utility.DockerImageName;
 
 
 @Configuration
-@Profile("test") // Solo se activa en pruebas
+@Profile("test")
 public class KafkaTestContainerConfig {
 
     @Bean(initMethod = "start", destroyMethod = "stop")

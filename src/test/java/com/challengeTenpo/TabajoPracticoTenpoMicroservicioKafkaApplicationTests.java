@@ -7,8 +7,11 @@ import org.springframework.kafka.test.EmbeddedKafkaBroker;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.test.context.ActiveProfiles;
 
-@SpringBootTest
-@EmbeddedKafka(partitions = 1, brokerProperties = { "listeners=PLAINTEXT://localhost:9092", "port=9092" })
+@SpringBootTest(properties = "server.port=0")
+@EmbeddedKafka(partitions = 1, brokerProperties = {
+		"listeners=PLAINTEXT://localhost:9092",
+		"port=9092"
+})
 @ActiveProfiles("test")
 public class TabajoPracticoTenpoMicroservicioKafkaApplicationTests {
 

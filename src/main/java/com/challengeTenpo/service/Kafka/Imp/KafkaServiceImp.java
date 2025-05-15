@@ -5,6 +5,8 @@ import com.challengeTenpo.repository.ICalculosRepository;
 import com.challengeTenpo.service.Kafka.IKafkaService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.scheduling.annotation.Async;
@@ -14,7 +16,11 @@ import java.util.concurrent.CompletableFuture;
 
 @Service
 @Slf4j
+@ConditionalOnProperty(name = "kafka.enabled", havingValue = "true", matchIfMissing = true)
 public class KafkaServiceImp implements IKafkaService {
+
+    @Value("${kafka.enabled:false}")
+    private boolean kafkaEnabled;
 
     private static final String TOPIC = "historial-calculations";
     private static final String TOPIC_HISTORIAL = "historial-calculations";
@@ -31,6 +37,10 @@ public class KafkaServiceImp implements IKafkaService {
 
     @Async
     public void send(HistorialCalculosEntity historial) {
+        if (!kafkaEnabled) {
+            log.warn("[MODE DEV] Kafka desactivado - Mensaje simulado: {}", historial);
+            return;
+        }
         try {
             CompletableFuture<SendResult<String, HistorialCalculosEntity>> future =
                     kafkaTemplate.send(TOPIC, historial);

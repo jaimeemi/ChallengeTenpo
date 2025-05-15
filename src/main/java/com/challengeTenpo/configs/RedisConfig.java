@@ -19,14 +19,14 @@ public class RedisConfig {
             @Value("${spring.redis.port:6379}") int port) {
 
         RedisStandaloneConfiguration config = new RedisStandaloneConfiguration();
-        config.setHostName(host); // Usará "redis" en Docker, "localhost" localmente
+        config.setHostName(host);
         config.setPort(port);
         return new JedisConnectionFactory(config);
     }
 
     @Bean
-    public RedisTemplate<String, Double> redisTemplate(RedisConnectionFactory connectionFactory) {
-        RedisTemplate<String, Double> template = new RedisTemplate<>();
+    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory) {
+        RedisTemplate<String, Object> template = new RedisTemplate<>();
         template.setConnectionFactory(connectionFactory);
         template.setKeySerializer(new StringRedisSerializer());
         template.setValueSerializer(new GenericJackson2JsonRedisSerializer());

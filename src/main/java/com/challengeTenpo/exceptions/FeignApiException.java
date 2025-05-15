@@ -1,12 +1,11 @@
 package com.challengeTenpo.exceptions;
 
+import com.challengeTenpo.exceptions.Imp.BaseException;
 import lombok.Getter;
 
 @Getter
-public class FeignApiException extends RuntimeException {
+public class FeignApiException extends BaseException {
     private static final long serialVersionUID = 3L;
-    private final String codigoError;
-    private final String mensaje;
 
     public FeignApiException() {
         this("Servicio externo no disponible", "API-001");
@@ -17,15 +16,10 @@ public class FeignApiException extends RuntimeException {
     }
 
     public FeignApiException(String mensaje, String codigoError) {
-        super(mensaje);
-        this.mensaje = mensaje;
-        this.codigoError = codigoError;
+        super(mensaje,codigoError);
     }
 
     public FeignApiException(String mensaje, Throwable cause, String codigoError) {
-        super(mensaje, cause);
-        this.mensaje = mensaje;
-        this.codigoError = codigoError;
+        super(mensaje, cause, codigoError);
     }
-
 }

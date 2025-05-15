@@ -31,7 +31,7 @@ public class CalculosServiceImp implements ICalculosService {
 
     private final IPorcentajeService porcentajeService;
     private final ICalculosRepository calculosRepository;
-    private final RedisTemplate<String, Double> redisTemplate;
+    private final RedisTemplate<String, Object> redisTemplate;
     private final IKafkaService kafkaService;
 
     private static final String PORCENTAJE_CACHE = "Percentage";
@@ -40,7 +40,7 @@ public class CalculosServiceImp implements ICalculosService {
     @Autowired
     public CalculosServiceImp(IPorcentajeService porcentajeService,
                               ICalculosRepository calculosRepository,
-                              RedisTemplate<String, Double> redisTemplate,
+                              RedisTemplate<String, Object> redisTemplate,
                               IKafkaService kafkaService) {
         this.porcentajeService = porcentajeService;
         this.calculosRepository = calculosRepository;
@@ -72,20 +72,34 @@ public class CalculosServiceImp implements ICalculosService {
 
     private double llamadaMiddelware() {
         try {
-            log.info("Llamada a APi MiddelWare para obtener Porcentaje");
-            String resuestaMidd = porcentajeService.obtenerPorcentaje();
-            log.info("Numero porcentaje: "+ resuestaMidd);
-            double porcentaje = Double.parseDouble(resuestaMidd.trim());
+            log.info("Llamada a API MiddleWare para obtener Porcentaje");
+            String respuestaMid = porcentajeService.obtenerPorcentaje();
+            log.info("Numero porcentaje: {}", respuestaMid);
+            double porcentaje = Double.parseDouble(respuestaMid.trim());
 
             log.info("Guardando Ultimo Porcentaje");
             redisTemplate.opsForValue().set(PORCENTAJE_CACHE, porcentaje);
             return porcentaje;
         } catch (FeignApiException e) {
-            Double cachedPercentage = redisTemplate.opsForValue().get(PORCENTAJE_CACHE);
-            if (cachedPercentage == null) {
+            Object cachedValue = redisTemplate.opsForValue().get(PORCENTAJE_CACHE);
+            if (cachedValue == null) {
                 throw new FeignApiException(e.getMessage() + " y no hay porcentaje en caché");
             }
-            return cachedPercentage;
+
+            // Esta parte del metodo se la pedi a IA, entiendo que castea! Pude haberlo puesto en otro metodo
+            try {
+                if (cachedValue instanceof Double) {
+                    return (Double) cachedValue;
+                } else if (cachedValue instanceof Integer) {
+                    return ((Integer) cachedValue).doubleValue();
+                } else if (cachedValue instanceof String) {
+                    return Double.parseDouble((String) cachedValue);
+                } else {
+                    throw new FeignApiException("Formato de porcentaje en caché no válido");
+                }
+            } catch (Exception ex) {
+                throw new FeignApiException("Error al recuperar porcentaje de caché");
+            }
         }
     }
 
